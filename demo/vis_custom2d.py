@@ -196,6 +196,6 @@ if __name__ == "__main__":
             if video_index == 1:
                 name += '_train'
             get_pose3D_custom(video_path, name, keypoints, output_dir)
-            img2video(video_path, output_dir)
+            # img2video(video_path, output_dir)
 
     print('Generating demo successful!')
