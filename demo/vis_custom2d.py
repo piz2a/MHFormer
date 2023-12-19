@@ -18,12 +18,15 @@ import matplotlib.gridspec as gridspec
 
 from vis import showimage, show2Dpose, show3Dpose, img2video
 
+# Configurations
+demo = False
+
 plt.switch_backend('agg')
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 
 
-def get_pose3D_custom(video_path, name, keypoints, output_dir):
+def get_pose3D_custom(video_path, video_name, keypoints, output_dir):
     args, _ = argparse.ArgumentParser().parse_known_args()
     args.layers, args.channel, args.d_hid, args.frames = 3, 512, 1024, 351
     args.pad = (args.frames - 1) // 2
@@ -104,6 +107,9 @@ def get_pose3D_custom(video_path, name, keypoints, output_dir):
 
             outputs3d[kpt_index].append(post_out)
 
+            if not demo:
+                continue
+
             rot = [0.1407056450843811, -0.1500701755285263, -0.755240797996521, 0.6223280429840088]
             rot = np.array(rot, dtype='float32')
             post_out = camera_to_world(post_out, R=rot, t=0)
@@ -125,23 +131,28 @@ def get_pose3D_custom(video_path, name, keypoints, output_dir):
             os.makedirs(output_dir_3D_sub, exist_ok=True)
             plt.savefig(output_dir_3D_sub + str(('%04d' % i)) + '_3D.png', dpi=200, format='png', bbox_inches='tight')
 
+        if not demo:
+            continue
         os.makedirs(output_dir_2D, exist_ok=True)
         cv2.imwrite(output_dir_2D + str(('%04d' % i)) + '_2D.png', image)
 
     ## save 3D keypoints
     outputs3d = np.stack(outputs3d, axis=0)
-    print("outputs3d.shape:", outputs3d.shape)
+    # print("outputs3d.shape:", outputs3d.shape)
     os.makedirs(output_dir + 'output_3D/', exist_ok=True)
-    output_npz = output_dir + 'output_3D/' + f'output_keypoints_3d_{name}.npz'
+    output_npz = output_dir + 'output_3D/' + f'output_keypoints_3d_{video_name}.npz'
     np.savez_compressed(output_npz, reconstruction=outputs3d)
 
     print('Generating 3D pose successfully!')
 
     ## all
-    image_dir = 'results/'
+    # image_dir = 'results/'
     image_2d_dir = sorted(glob.glob(os.path.join(output_dir_2D, '*.png')))
     image_3d_dir0 = sorted(glob.glob(os.path.join(output_dir_3D + '0/', '*.png')))
     image_3d_dir1 = sorted(glob.glob(os.path.join(output_dir_3D + '1/', '*.png')))
+
+    if not demo:
+        return
 
     print('\nGenerating demo...')
     for i in tqdm(range(len(image_2d_dir))):
@@ -198,4 +209,4 @@ if __name__ == "__main__":
             get_pose3D_custom(video_path, name, keypoints, output_dir)
             # img2video(video_path, output_dir)
 
-    print('Generating demo successful!')
+    print('Generating successful!')
