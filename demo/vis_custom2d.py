@@ -150,8 +150,8 @@ def get_pose3D_custom(video_path, name, keypoints, output_dir):
         image_3d1 = plt.imread(image_3d_dir1[i])
 
         ## crop
-        edge = (image_2d.shape[1] - image_2d.shape[0]) // 2
-        image_2d = image_2d[:, edge:image_2d.shape[1] - edge]
+        # edge = (image_2d.shape[1] - image_2d.shape[0]) // 2
+        # image_2d = image_2d[:, edge:image_2d.shape[1] - edge]
 
         ## show
         font_size = 12
